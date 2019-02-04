@@ -12,21 +12,74 @@ output:
     toc_float: yes
 ---
 
-#1
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+#Spatio-Temporal Data
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+##Geostatistical data
+We think of geostatistical data as the kind where
+we could have observations of some variable or variables of interest (e.g., temperature and
+wind speed) at continuous locations over a given spatial domain, and where we seek to predict
+those variables at unknown locations in space __(e.g., using interpolation methodology such as kriging)__
 
 
-```r
-plot(cars)
-```
+##Lattice processes
+Lattice processes are defined on a finite or countable subset in space (e.g.,
+grid nodes, pixels, polygons, small areas)
 
-![](Exploring_Spatio-Temporal_Data_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+##Spatial point process
+A spatial point process is a stochastic process in which the locations of the points
+(sometimes called events) are random over the spatial domain, where these events can have
+attributes given in terms of marks (e.g., locations of trees in a forest are random events,
+with the diameter at breast height being the mark).
 
-#2
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+Throughout this book, we consider the following data sets:
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
++ NOAA daily weather data
+
++ Sea-surface temperature anomalies
+
++ Breeding Bird Survey (BBS) counts
+
++ Per capita personal income
+
++ Sydney radar reflectivity
+
++ Mediterranean winds
+
+
+#Representation of Spatio-Temporal Data in R
+
+[Pebesma 2012](https://cran.r-project.org/web/packages/spacetime/vignettes/jss816.pdf)
+
+Although spatio-temporal data can come in quite sophisticated relational forms, they
+most often come in the form of fairly simple “tables.” Pebesma (2012) classifies these
+simple tables into three classes
+
++ Time-wide, where columns correspond to different time points
+
++ Space-wide, where columns correspond to different spatial features (e.g., locations,regions, grid points, pixels)
+
++ Long formats, where each record corresponds to a specific time and space coordinate.
+
+
+Pebesma (2012) considers four classes of space-time data:
+
++ full grid (STF), a combination of any sp object and any xts object to represent all possible locations on the implied space-time lattice
+
++ sparse grid (STS), as STF, but contains only the non-missing space-time combinations on a space-time lattice
+
++ irregular (STI), an irregular space-time data structure, where each point is allocated a spatial coordinate and a time stamp
+
++ simple trajectories (STT), a sequence of space-time points that form trajectories
+
+#Visualization of Spatio-Temporal Data
+##Spatial Plots
+
+
+
+
+
+
+
+
+
