@@ -1,0 +1,303 @@
+---
+title: "Exploring Spatio-Temporal Data Lab2.1"
+author: "Erick Calderon-Morales"
+output:
+  html_document:
+    code_folding: show
+    fig_height: 30
+    fig_width: 30
+    keep_md: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+  word_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+
+#Lab 2.1: Data Wrangling
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(STRbook)
+```
+
+###Para entender los objetos STIDF y STFDF ver [Pebesma 2012](https://cran.r-project.org/web/packages/spacetime/vignettes/jss816.pdf)
+
+##NOAA data set
+
+There are six data tables:
+
++ Stationinfo.dat 328x3
+
++ Times_1990.dat 1461x4
+
++ Tmax_1990.dat 1461x328 na=-9999
+
++ Tmin_1990.dat 1461x328 na=-9999
+
++ TDP_1990.dat 1461x328 na=-999.90001
+
++ Precip_1990.dat 1461x328 na=-99.989998
+
+
+##First task: Reconcile all data sets into one object
+```{r}
+#Cargar data
+#The system.file sirve para localizar los datos dentro del paquete
+
+locs <- read.table(system.file("extdata","Stationinfo.dat",
+                               package = "STRbook"),
+                   col.names = c("id","lat","lon"))
+
+
+times <- read.table(system.file("extdata","Times_1990.dat",
+                                package = "STRbook"),
+                    col.names = c("julian","year","month","day"))
+
+tmax <- read.table(system.file("extdata", "Tmax_1990.dat",
+                               package = "STRbook"))
+names(tmax) <- locs$id
+
+
+#Attach tmax y times
+tmax <- cbind(times,tmax)
+#Ahora tmax contiene la informacion de temperatura (col=328) y la info de tiempo (col=4)
+
+
+#Cambiando el formato de tmax a long format
+#Deje igual las columnas julian year month day
+#Key= id 
+#values= z
+tmax_long <- gather(tmax,id,z,-julian,-year,-month,-day)
+head(tmax_long)
+
+#tratar id como integer y no como character
+tmax_long$id <- as.integer(tmax_long$id)
+```
+
+
+
+```{r}
+#Filter out missing data
+#na= -9999
+#Es mejor filtar los nas con un less than (<=) que un equal (==) esto debido a que este ultimo #genera un error de truncacion 
+
+nrow(tmax_long)
+
+tmax_long <- tmax_long %>% 
+  #filter los calores que no sean menores o iguales a -9998
+  filter(!(z<=-9998))
+
+nrow(tmax_long)
+```
+
+
+```{r}
+#Agregar una columna proc
+tmax_long <- mutate(tmax_long, proc= "Tmax")
+head(tmax_long)
+```
+
+
+
+```{r}
+#Agregar los otros data sets
+
+data("Tmin_long", package = "STRbook")
+head(Tmin_long)
+
+data("TDP_long", package = "STRbook")
+head(TDP_long)
+
+data("Precip_long", package = "STRbook")
+head(Precip_long)
+```
+
+
+##Juntar todos los data sets en uno solo NOAA_df_1990
+```{r}
+NOAA_df_1990 <- rbind(tmax_long,Tmin_long,TDP_long,Precip_long)
+```
+
+#Summarizing the data
+```{r}
+summ <- group_by(NOAA_df_1990, year, proc) %>% 
+  summarise(mean_proc = mean(z))
+
+#Medias por año y proceso
+head(summ)
+```
+
+
+
+```{r}
+#Numero de dias en los que no cayo lluvia
+
+#Precipitacion del mes 6
+noaa_prepci <- filter(NOAA_df_1990, proc == "Precip" & month==6)
+
+summ <- group_by(noaa_prepci,year, id) %>% 
+  summarise(days_no_rain_june = sum(z == 0))
+
+head(summ)
+```
+
+
+```{r}
+#Arrange columns
+noaa_df_sorted <- arrange(NOAA_df_1990, julian,id)
+```
+
+
+
+
+#Agregar coordenadas de las estaciones a los datos
+
+```{r}
+NOAA_df_1990 <- left_join(NOAA_df_1990, locs, by="id")
+```
+
+
+#Working with Spatio-Temporal Data Classes
+
+Los datos se tienen que convertir a objetos tipo __STIDF (Spatio Temporal Data Frames)__ y __STFDF__ los cuales estan definidos en el paquete __spacetime__
+
+```{r}
+library(sp)
+library(spacetime)
+```
+
+
+#Constructing an STIDF Object
+
+Spatio temporal object for irregular data (STIDF), __los puntos no estan fijos en el tiempo__ 
+
+
+##Primero definir un formato de fecha (año/mes/day)
+
+```{r}
+#Crear un sola columna con las fechas 
+NOAA_df_1990$date <- with(NOAA_df_1990,
+                          paste(year,month,day, sep="-")) 
+#Convertirlo a formato fecha
+class(NOAA_df_1990$date <- as.Date(NOAA_df_1990$date))
+
+```
+
+##Construir el objeto spatio temporal (STIDF) para la variable de max temp
+```{r}
+#Se selecciona Tmax
+tmax_long2 <- filter(NOAA_df_1990, proc == "Tmax")
+
+#STIDF object: Se especifica en la funcion cuales son la coordenadas
+stobj <- stConstruct(x = tmax_long2,
+                     space = c("lon","lat"),
+                     time = "date"
+                     )
+```
+
+
+
+##Construir el objeto spatialPoints para la variable de max temp
+
+```{r}
+spat_part <- SpatialPoints(coords = tmax_long2[, c("lon","lat")])
+temp_part <- tmax_long2$date
+
+stobj2 <- STIDF(sp=spat_part,
+                time = temp_part,
+                data = select(tmax_long2,-date,-lon,-lat))
+class(stobj2)
+
+```
+ 
+#Constructing an STFDF Object
+
+Spatio temporal object for fixesd data (STFDF), __Los puntos estan fijo en el tiempo__
+
+Para estos tipo de objetos solo se tiene especificar las coordenadas espaciales, en este caso solo las coordenadas de las estaciones.
+
+```{r}
+spat_part <- SpatialPoints(coords = locs[, c("lon", "lat")])
+temp_part <- with(times,
+                  paste(year,month,day, sep="-"))
+temp_part <- as.Date(temp_part)
+```
+
+```{r}
+#Formato largo (long format)
+tmax_long3 <- gather(tmax, id,z, -julian,-year,-month, -day)
+head(tmax_long3)
+```
+
+
+
+```{r}
+str(tmax_long3)
+
+tmax_long3$id <- as.integer(tmax_long3$id)
+
+#Ordenar los datos
+tmax_long3 <- arrange(tmax_long3, julian, id)
+
+#revisar que la ordenacion spacial esta correcta
+all(unique(tmax_long3$id)==locs$id)
+
+
+```
+
+```{r}
+#The STFDF object
+stobj3 <- STFDF(sp=spat_part,
+                time=temp_part,
+                data = tmax_long3)
+```
+
+##Setting the coordinate reference system
+```{r}
+proj4string(stobj3) <- CRS("+proj=longlat +ellps=WGS84")
+```
+
+
+```{r}
+#Replace -9999 por NA
+stobj3$z[stobj3$z == -9999] <- NA
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

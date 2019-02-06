@@ -1,6 +1,6 @@
 ---
-title: "Exploring Spatio-Temporal Data"
-author: "Erick CalderÃƒÂ³n-Morales"
+title: "Exploring Spatio-Temporal Data Lab2.1"
+author: "Erick Calderon-Morales"
 output:
   html_document:
     code_folding: show
@@ -18,78 +18,16 @@ output:
     toc_depth: '2'
 ---
 
-#Spatio-Temporal Data
-
-##Geostatistical data
-We think of geostatistical data as the kind where
-we could have observations of some variable or variables of interest (e.g., temperature and
-wind speed) at continuous locations over a given spatial domain, and where we seek to predict
-those variables at unknown locations in space __(e.g., using interpolation methodology such as kriging)__
-
-
-##Lattice processes
-Lattice processes are defined on a finite or countable subset in space (e.g.,
-grid nodes, pixels, polygons, small areas)
-
-##Spatial point process
-A spatial point process is a stochastic process in which the locations of the points
-(sometimes called events) are random over the spatial domain, where these events can have
-attributes given in terms of marks (e.g., locations of trees in a forest are random events,
-with the diameter at breast height being the mark).
-
-
-Throughout this book, we consider the following data sets:
-
-+ NOAA daily weather data
-
-+ Sea-surface temperature anomalies
-
-+ Breeding Bird Survey (BBS) counts
-
-+ Per capita personal income
-
-+ Sydney radar reflectivity
-
-+ Mediterranean winds
-
-
-#Representation of Spatio-Temporal Data in R
-
-[Pebesma 2012](https://cran.r-project.org/web/packages/spacetime/vignettes/jss816.pdf)
-
-Although spatio-temporal data can come in quite sophisticated relational forms, they
-most often come in the form of fairly simple “tables.” Pebesma (2012) classifies these
-simple tables into three classes
-
-+ Time-wide, where columns correspond to different time points
-
-+ Space-wide, where columns correspond to different spatial features (e.g., locations,regions, grid points, pixels)
-
-+ Long formats, where each record corresponds to a specific time and space coordinate.
-
-
-Pebesma (2012) considers four classes of space-time data:
-
-+ full grid (STF), a combination of any sp object and any xts object to represent all possible locations on the implied space-time lattice
-
-+ sparse grid (STS), as STF, but contains only the non-missing space-time combinations on a space-time lattice
-
-+ irregular (STI), an irregular space-time data structure, where each point is allocated a spatial coordinate and a time stamp
-
-+ simple trajectories (STT), a sequence of space-time points that form trajectories
-
-#Visualization of Spatio-Temporal Data
-##Spatial Plots
-
-The Trelliscope system, available with the package trelliscope, helps users visualize
-massive data sets.
 
 #Lab 2.1: Data Wrangling
+
 
 ```r
 library(tidyverse)
 library(STRbook)
 ```
+
+###Para entender los objetos STIDF y STFDF ver [Pebesma 2012](https://cran.r-project.org/web/packages/spacetime/vignettes/jss816.pdf)
 
 ##NOAA data set
 
@@ -109,7 +47,6 @@ There are six data tables:
 
 
 ##First task: Reconcile all data sets into one object
-
 
 ```r
 #Cargar data
@@ -159,6 +96,7 @@ tmax_long$id <- as.integer(tmax_long$id)
 
 
 
+
 ```r
 #Filter out missing data
 #na= -9999
@@ -200,6 +138,8 @@ head(tmax_long)
 ## 5 726838 1990     1   5 3804 41 Tmax
 ## 6 726839 1990     1   6 3804 45 Tmax
 ```
+
+
 
 
 ```r
@@ -249,6 +189,7 @@ head(Precip_long)
 ## 6 726839 1990     1   6 3804 0.00 Precip
 ```
 
+
 ##Juntar todos los data sets en uno solo NOAA_df_1990
 
 ```r
@@ -277,6 +218,7 @@ head(summ)
 ## 5  1991 Precip     0.116
 ## 6  1991 TDP       45.2
 ```
+
 
 
 
@@ -470,4 +412,36 @@ proj4string(stobj3) <- CRS("+proj=longlat +ellps=WGS84")
 #Replace -9999 por NA
 stobj3$z[stobj3$z == -9999] <- NA
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
