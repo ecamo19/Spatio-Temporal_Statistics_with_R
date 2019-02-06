@@ -350,6 +350,47 @@ div.tocify {
 <h1>Visualization of Spatio-Temporal Data</h1>
 <div id="spatial-plots" class="section level2">
 <h2>Spatial Plots</h2>
+<p>The Trelliscope system, available with the package trelliscope, helps users visualize massive data sets.</p>
+</div>
+</div>
+<div id="lab-2.1-data-wrangling" class="section level1">
+<h1>Lab 2.1: Data Wrangling</h1>
+<pre class="r"><code>library(tidyverse)
+library(STRbook)</code></pre>
+<div id="noaa-data-set" class="section level2">
+<h2>NOAA data set</h2>
+<p>There are six data tables:</p>
+<ul>
+<li><p>Stationinfo.dat 328x3</p></li>
+<li><p>Times_1990.dat 1461x4</p></li>
+<li><p>Tmax_1990.dat 1461x328 na=-9999</p></li>
+<li><p>Tmin_1990.dat 1461x328 na=-9999</p></li>
+<li><p>TDP_1990.dat 1461x328 na=-999.90001</p></li>
+<li><p>Precip_1990.dat 1461x328 na=-99.989998</p></li>
+</ul>
+</div>
+<div id="first-task-reconcile-all-data-sets-into-one-object" class="section level2">
+<h2>First task: Reconcile all data sets into one object</h2>
+<pre class="r"><code>#Cargar data
+#The system.file sirve para localizar los datos dentro del paquete
+
+locs &lt;- read.table(system.file(&quot;extdata&quot;,&quot;Stationinfo.dat&quot;,
+                               package = &quot;STRbook&quot;),
+                   col.names = c(&quot;id&quot;,&quot;lat&quot;,&quot;lon&quot;))
+
+
+times &lt;- read.table(system.file(&quot;extdata&quot;,&quot;Times_1990.dat&quot;,
+                                package = &quot;STRbook&quot;),
+                    col.names = c(&quot;julian&quot;,&quot;year&quot;,&quot;month&quot;,&quot;day&quot;))
+
+tmax &lt;- read.table(system.file(&quot;extdata&quot;, &quot;Tmax_1990.dat&quot;,
+                               package = &quot;STRbook&quot;))
+names(tmax) &lt;- locs$id
+
+
+#Attach tmax y times
+tmax &lt;- cbind(times,tmax)
+#Ahora tmax contiene la informacion de temperatura (col=328) y la info de tiempo (col=4)</code></pre>
 </div>
 </div>
 

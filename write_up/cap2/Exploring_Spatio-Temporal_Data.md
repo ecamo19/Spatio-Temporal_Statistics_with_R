@@ -75,9 +75,58 @@ Pebesma (2012) considers four classes of space-time data:
 #Visualization of Spatio-Temporal Data
 ##Spatial Plots
 
+The Trelliscope system, available with the package trelliscope, helps users visualize
+massive data sets.
+
+#Lab 2.1: Data Wrangling
+
+```r
+library(tidyverse)
+library(STRbook)
+```
+
+##NOAA data set
+
+There are six data tables:
+
++ Stationinfo.dat 328x3
+
++ Times_1990.dat 1461x4
+
++ Tmax_1990.dat 1461x328 na=-9999
+
++ Tmin_1990.dat 1461x328 na=-9999
+
++ TDP_1990.dat 1461x328 na=-999.90001
+
++ Precip_1990.dat 1461x328 na=-99.989998
 
 
+##First task: Reconcile all data sets into one object
 
+
+```r
+#Cargar data
+#The system.file sirve para localizar los datos dentro del paquete
+
+locs <- read.table(system.file("extdata","Stationinfo.dat",
+                               package = "STRbook"),
+                   col.names = c("id","lat","lon"))
+
+
+times <- read.table(system.file("extdata","Times_1990.dat",
+                                package = "STRbook"),
+                    col.names = c("julian","year","month","day"))
+
+tmax <- read.table(system.file("extdata", "Tmax_1990.dat",
+                               package = "STRbook"))
+names(tmax) <- locs$id
+
+
+#Attach tmax y times
+tmax <- cbind(times,tmax)
+#Ahora tmax contiene la informacion de temperatura (col=328) y la info de tiempo (col=4)
+```
 
 
 
