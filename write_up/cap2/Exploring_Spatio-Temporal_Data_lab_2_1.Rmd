@@ -218,6 +218,8 @@ class(stobj2)
  
 #Constructing an STFDF Object
 
+__stConstruct creates an STFDF object if all space and time combi-nations occur only once__
+
 Spatio temporal object for fixesd data (STFDF), __Los puntos estan fijo en el tiempo__
 
 Para estos tipo de objetos solo se tiene especificar las coordenadas espaciales, en este caso solo las coordenadas de las estaciones.
@@ -245,7 +247,7 @@ tmax_long3$id <- as.integer(tmax_long3$id)
 #Ordenar los datos
 tmax_long3 <- arrange(tmax_long3, julian, id)
 
-#revisar que la ordenacion spacial esta correcta
+#revisar que la ordenacion spacial esta correcta en los objetos stfdf, las combinaciones de espacio y tiempo solo ocurren una vez
 all(unique(tmax_long3$id)==locs$id)
 
 
